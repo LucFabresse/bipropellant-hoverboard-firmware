@@ -274,7 +274,7 @@
 #endif
 
 #ifndef INACTIVITY_TIMEOUT
-  #define INACTIVITY_TIMEOUT 8        // minutes of not driving until poweroff. it is not very precise.
+  #define INACTIVITY_TIMEOUT 120        // minutes of not driving until poweroff. it is not very precise.
 #endif
 
 // ############################### SERIAL DEBUG ###############################
