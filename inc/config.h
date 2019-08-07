@@ -14,7 +14,9 @@
 // thoery says this is the only thing you need to change....
 // Can also be preset from platformio.ini when using platform.io build environment
 #ifndef CONTROL_TYPE
-  #define CONTROL_TYPE HOVERBOARD_WITH_SOFTWARE_SERIAL_B2_C9
+  // #define CONTROL_TYPE HOVERBOARD_WITH_SOFTWARE_SERIAL_B2_C9
+  #define USART2_BAUD 115200
+  #define CONTROL_TYPE USART2_CONTROLLED
 #endif
 //////////////////////////////////////////////////////////
 

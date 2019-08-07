@@ -1,5 +1,4 @@
-build/*
-!build/hover.hex
+build
 .pioenvs
 .piolibdeps
 .vscode/*
