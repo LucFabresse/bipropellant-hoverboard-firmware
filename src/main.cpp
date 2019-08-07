@@ -19,6 +19,10 @@
 * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "stm32f1xx_hal.h"
 #include "defines.h"
 #include "setup.h"
@@ -38,7 +42,16 @@
 #include "control_structures.h"
 
 #include <string.h>
-void BldcController_Init();
+
+// C Linkage for following functions because they are called from C files
+void init_PID_control(); 
+void change_PID_constants();
+
+#ifdef __cplusplus
+}
+#endif
+
+extern void BldcController_Init();
 
 void SystemClock_Config(void);
 
@@ -126,7 +139,7 @@ void poweroff() {
             buzzerFreq = i;
             HAL_Delay(100);
         }
-        HAL_GPIO_WritePin(OFF_PORT, OFF_PIN, 0);
+        HAL_GPIO_WritePin(OFF_PORT, OFF_PIN, GPIO_PIN_RESET);
 
         // if we are powered from sTLink, this bit allows the system to be started again with the button.
         while (HAL_GPIO_ReadPin(BUTTON_PORT, BUTTON_PIN)) {}
@@ -278,7 +291,7 @@ int main(void) {
 
   memset((void*)&electrical_measurements, 0, sizeof(electrical_measurements));
 
-  HAL_GPIO_WritePin(OFF_PORT, OFF_PIN, 1);
+  HAL_GPIO_WritePin(OFF_PORT, OFF_PIN, GPIO_PIN_SET);
 
   HAL_ADC_Start(&hadc1);
   HAL_ADC_Start(&hadc2);
@@ -326,7 +339,7 @@ int main(void) {
   }
   buzzerFreq = 0;
 
-  HAL_GPIO_WritePin(LED_PORT, LED_PIN, 1);
+  HAL_GPIO_WritePin(LED_PORT, LED_PIN, GPIO_PIN_SET);
 
   //int lastspeeds[2] = {0, 0};
 

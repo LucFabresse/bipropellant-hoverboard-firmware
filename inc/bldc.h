@@ -8,8 +8,8 @@
 #define BLDC_CONTROL_TYPE_SINUSOIDAL 2
 #define BLDC_CONTROL_TYPE_SINUSOIDAL3RDHARMONIC 3
 
-extern void readADCs();
-extern void BldcController_Init();
+void readADCs();
+void BldcController_Init();
 
 typedef struct tag_BLDC_PARAMS{
   int ctrlTypSel; // first for a reason - so we can partial write to it.

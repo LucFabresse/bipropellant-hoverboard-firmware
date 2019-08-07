@@ -95,7 +95,7 @@ void consoleScope() {
 
 }
 
-void consoleLog(char *message)
+void consoleLog(const char *message)
 {
     #ifdef DEBUG_SOFTWARE_SERIAL
     if (debug_out){
