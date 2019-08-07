@@ -155,11 +155,6 @@ void poweroff() {
 // actually 'power'
 int pwms[2] = {0, 0};
 
-// unused, but keep ascii from erroring
-int dspeeds[2] = {0,0};
-
-
-
 /////////////////////////////////////////
 // variables stored in flash
 // from flashcontent.h

@@ -77,7 +77,6 @@ extern void change_PID_constants();
 
 extern uint8_t enable; // global variable for motor enable
 extern volatile uint32_t input_timeout_counter; // global variable for input_timeout
-extern int dspeeds[2];
 extern int pwms[2];
 
 
@@ -192,7 +191,6 @@ int immediate_stop(PROTOCOL_STAT *s, char byte, char *ascii_out) {
 #ifdef HALL_INTERRUPTS
     HallData[0].HallSpeed_mm_per_s = HallData[1].HallSpeed_mm_per_s = 0;
 #endif
-    dspeeds[0] = dspeeds[1] = speedB;
     pwms[0] = pwms[1] = speedB;
 #ifdef HALL_INTERRUPTS
     PosnData.wanted_posn_mm[0] = HallData[0].HallPosn_mm;
@@ -522,7 +520,6 @@ int line_immediate(PROTOCOL_STAT *s, char *cmd, char *ascii_out) {
     PWMData.pwm[1] = CLAMP(speedB * SPEED_COEFFICIENT -  steerB * STEER_COEFFICIENT, -1000, 1000);
     PWMData.pwm[0] = CLAMP(speedB * SPEED_COEFFICIENT +  steerB * STEER_COEFFICIENT, -1000, 1000);
     SpeedData.wanted_speed_mm_per_sec[0] = SpeedData.wanted_speed_mm_per_sec[1] = speedB;
-    dspeeds[0] = dspeeds[1] = speedB;
 #ifdef HALL_INTERRUPTS
     PosnData.wanted_posn_mm[0] = HallData[0].HallPosn_mm;
     PosnData.wanted_posn_mm[1] = HallData[1].HallPosn_mm;
