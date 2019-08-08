@@ -410,7 +410,7 @@ void USART2_IRQHandler(void){
 }
 #endif
 
-#if defined(SERIAL_USART3_IT)
+#if defined(SERIAL_USART3_IT) || defined(ROSSERIAL_DEBUG_UART3)
 void USART3_IT_IRQ(USART_TypeDef *us);
 
 void USART3_IRQHandler(void){

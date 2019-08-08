@@ -51,6 +51,10 @@ void change_PID_constants();
 }
 #endif
 
+#ifdef ROSSERIAL_USART2
+	#include "rosserial.h"
+#endif
+
 extern void BldcController_Init();
 
 void SystemClock_Config(void);
@@ -302,15 +306,12 @@ int main(void) {
 
   #if defined(SERIAL_USART2_IT) || defined(ROSSERIAL_USART2)  
   USART2_IT_init();
-  
-  // available from comms.{h,c}
-  // int   USART2_IT_starttx();
-//   int   USART2_IT_send(unsigned char *data, int len);
-//   void  USART2_IT_IRQ(USART_TypeDef *us);
   #endif
-  #ifdef SERIAL_USART3_IT
+  
+  #if defined(SERIAL_USART3_IT) || defined(ROSSERIAL_DEBUG_UART3)
   USART3_IT_init();
   #endif
+  
   #ifdef SOFTWARE_SERIAL
   SoftwareSerialInit();
   #endif
@@ -407,6 +408,10 @@ int main(void) {
   BldcControllerParams.callFrequency = timeStats.bldc_freq;
   BldcController_Init();
 
+  #ifdef ROSSERIAL_USART2
+	  rosserial_init();
+  #endif
+    
   while(1) {
     timeStats.time_in_us = timeStats.now_us;
     timeStats.time_in_ms = timeStats.now_ms;
@@ -779,16 +784,8 @@ int main(void) {
       pwml = pwms[0];
     }
 
-	 
 	#ifdef ROSSERIAL_USART2
-	 	 
-			 // 	    while ( serial_usart_buffer_count(&usart2_it_RXbuffer) > 0 ) {
-			 // protocol_byte( &sUSART2, (unsigned char) serial_usart_buffer_pop(&usart2_it_RXbuffer) );
-			 // 	    }
-	 
-		 unsigned char msg[] = "Hello from Propellant\n\r";
-		 USART2_IT_send((unsigned char*) msg,strlen((const char*) msg));
-		 consoleLog("Cool ça !\n\r");
+		rosserial_loop();
 	#endif
 	 
 	 

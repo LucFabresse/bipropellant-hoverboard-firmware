@@ -102,7 +102,6 @@ void UART_Init() {
   DMA1_Channel2->CCR   = DMA_CCR_MINC | DMA_CCR_DIR;
   DMA1->IFCR           = DMA_IFCR_CTCIF2 | DMA_IFCR_CHTIF2 | DMA_IFCR_CGIF2;
 }
-
 #endif
 
 #ifdef DEBUG_SERIAL_USART2
@@ -185,7 +184,7 @@ void USART2_IT_init(){
 }
 #endif
 
-#ifdef SERIAL_USART3_IT
+#if defined(SERIAL_USART3_IT) || defined(ROSSERIAL_DEBUG_UART3)
 void USART3_IT_init(){
     memset((void *)&usart3_it_TXbuffer, 0, sizeof(usart3_it_TXbuffer));
     memset((void *)&usart3_it_RXbuffer, 0, sizeof(usart3_it_RXbuffer));

@@ -22,7 +22,7 @@ typedef struct tag_serial_usart_buffer {
 
 #endif
 
-#if defined(SERIAL_USART3_IT)
+#if defined(SERIAL_USART3_IT) || defined(ROSSERIAL_DEBUG_UART3)
 
     extern volatile SERIAL_USART_BUFFER usart3_it_TXbuffer;
     extern volatile SERIAL_USART_BUFFER usart3_it_RXbuffer;

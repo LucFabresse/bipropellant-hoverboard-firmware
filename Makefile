@@ -54,7 +54,8 @@ src/hbprotocol/ascii_protocol.c \
 src/ascii_proto_funcs.c \
 src/protocolfunctions.c \
 src/BLDC_controller_data.c \
-src/BLDC_controller.c
+src/BLDC_controller.c \
+src/rosserial.c 
 
 CPP_SOURCES = inc/rosserial_stm32/time.cpp \
 inc/rosserial_stm32/duration.cpp \

@@ -29,7 +29,7 @@
 #if defined(SERIAL_USART2_IT) || defined(ROSSERIAL_USART2)
     PROTOCOL_STAT sUSART2;
 #endif
-#if defined(SERIAL_USART3_IT) && !defined(READ_SENSOR)
+#if (defined(SERIAL_USART3_IT) || defined(ROSSERIAL_DEBUG_UART3)) && !defined(READ_SENSOR)
     PROTOCOL_STAT sUSART3;
 #endif
 
@@ -399,12 +399,14 @@ int setup_protocol() {
 
     #endif
 
-    #if defined(SERIAL_USART3_IT) && !defined(READ_SENSOR)
+    #if (defined(SERIAL_USART3_IT) || defined(ROSSERIAL_DEBUG_UART3)) && !defined(READ_SENSOR)
 
       extern int USART3_IT_send(unsigned char *data, int len);
-
+		
+		#ifndef ROSSERIAL_DEBUG_UART3
       errors += protocol_init(&sUSART3);
-
+		#endif
+		
       sUSART3.send_serial_data=USART3_IT_send;
       sUSART3.send_serial_data_wait=USART3_IT_send;
       sUSART3.timeout1 = 500;

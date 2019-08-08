@@ -22,11 +22,12 @@
 //////////////////////////////////////////////////////////
 
 #if (CONTROL_TYPE == CONTROL_ROSSERIAL_USART2)
-	#define ROSSERIAL_USART2			// rosserial on USART2 (battery side)
+	#define ROSSERIAL_USART2			// rosserial on USART2 (left or battery side)
 	#define USART2_BAUD     115200 	// more?
-	#define SERIAL_USART_IT_BUFFERTYPE unsigned short
-
-	#define DEBUG_SERIAL_USART3		// activate debug on USART3
+	#define SERIAL_USART_IT_BUFFERTYPE unsigned short	// because sizeof(unsigned short)==16bits > 8 or 9 bits of USART data
+	// #define SERIAL_USART_IT_BUFFERTYPE uint8_t	// if we are sure to stick with 8bits USART only
+	
+	#define ROSSERIAL_DEBUG_UART3		// activate debug on USART3 (right or motherboard side)
 	#define DEBUG_BAUD 115200			// strange, it was not defined somewhere...
 	#define DEBUG_SERIAL_ASCII 		// activate ASCII debug (cf. consoleScope())
 #endif
@@ -448,15 +449,22 @@
   #ifdef SENSOR_BOARD_CABLE_LEFT_IN_USE
     #error CONTROL_ROSSERIAL_USART2 not allowed, cable already in use.
   #else
-    #define SENSOR_BOARD_CABLE_LEFT_IN_USE
+	 #define SENSOR_BOARD_CABLE_LEFT_IN_USE
 	 #ifdef CONTROL_METHOD_DEFINED
-		#error CONTROL_ROSSERIAL_USART2 not allowed, another control Method is already defined.
+		#error CONTROL_ROSSERIAL_USART2 not allowed, another control method is already defined.
 		#else
 		#define CONTROL_METHOD_DEFINED
-	#endif
+	 #endif
   #endif
 #endif
 
+#if defined(ROSSERIAL_DEBUG_UART3)
+  #ifdef SENSOR_BOARD_CABLE_RIGHT_IN_USE
+    #error ROSSERIAL_DEBUG_UART3 not allowed, cable already in use.
+  #else
+    #define SENSOR_BOARD_CABLE_RIGHT_IN_USE
+  #endif
+#endif
 
 #if defined(DEBUG_SERIAL_USART2)
   #ifdef SENSOR_BOARD_CABLE_LEFT_IN_USE

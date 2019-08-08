@@ -36,93 +36,54 @@
 #define ROS_STM32_HARDWARE_H_
 
 // Black magic cast to remove volatile. DO NOT TOUCH!!!
-#define tbuf  ((uint8_t *)&uart.TX_buffer[0])
-
-// #define DELAY_BETWEEN_TX 8 // ms if BAUD_RATE = 115200 (cf. usart.h)
-// #define DELAY_BETWEEN_TX 3 // ms if BAUD_RATE = 250K (cf. usart.h)
-#define DELAY_BETWEEN_TX 3 // ms if BAUD_RATE = 500K (cf. usart.h)
+// #define tbuf  ((uint8_t *)&uart.TX_buffer[0])
 
 #include "stm32f1xx_hal.h"
 #include "stm32f1xx_hal_uart.h"
-#include "stm32f1xx_hal_tim.h"
-
-extern UART_HandleTypeDef huart2;
-extern DMA_HandleTypeDef hdma_usart2_rx;
-extern volatile struct UART uart;
+// #include "stm32f1xx_hal_tim.h"
 
 extern "C" {
-	#include "uart.h"
-	#include "delay.h"
-	#include <string.h>
+	#include "comms.h"
 }
+
+extern UART_HandleTypeDef huart2;
+extern volatile SERIAL_USART_BUFFER usart2_it_RXbuffer;
+
 
 class STM32Hardware {
   protected:
     UART_HandleTypeDef *huart;
  
-    uint32_t rind;
- 
-    uint32_t twind, tfind;
-
   public:
     STM32Hardware():
-      huart(&huart2), rind(0), twind(0), tfind(0){
+      huart(&huart2) {
     }
 
     STM32Hardware( UART_HandleTypeDef *huart_):
-     huart(huart_), rind(0), twind(0), tfind(0){
+     huart(huart_) {
     }
   
   	 // Ros::NodeHandle callback
     void init(){
-      
+      // nothing there
     }
 
-	 
 	 int read(){
 	 	int rx_value = -1;
-	 	int dma_count = -1;
-	
-	 	if (uart.RX_available) {
-	 		// __HAL_DMA_GET_COUNTER(__HANDLE__) Returns the number of remaining data units in the current DMAy Streamx transfer
-	 		dma_count =  BUFFER_LENGTH_RX - __HAL_DMA_GET_COUNTER(&hdma_usart2_rx);
-					
-	 		if( ((int) rind) != dma_count){
-	 		    rx_value = uart.RX_buffer[rind++];
-	 		    rind &= BUFFER_LENGTH_RX - 1;
-	 		}
-	 		
+
+		if ( serial_usart_buffer_count(&usart2_it_RXbuffer) > 0 ) {
+			rx_value = serial_usart_buffer_pop(&usart2_it_RXbuffer);
 	 	}
+
 	 	return rx_value;
 	 }
 
-
 	 void flush(void){
-	   if (Uart_is_TX_free()) {			
-	      uart.TX_free = 0;    //busy
-	      if(twind != tfind){
-	        uint16_t len = tfind < twind ? twind - tfind : BUFFER_LENGTH_TX - tfind;
-	        HAL_UART_Transmit_DMA(huart,&(tbuf[tfind]), len);
-	        tfind = (tfind + len) & (BUFFER_LENGTH_TX - 1);
-			  delay_ms(DELAY_BETWEEN_TX); // important for rosserial
-	      }
-	   }
+		 // nothing there
 	 }
-
-
+	 
 	 void write(uint8_t* data, int length){
-	   uint32_t n = length;
-	   n = n <= BUFFER_LENGTH_TX ? n : BUFFER_LENGTH_TX;
-
-	   uint32_t n_tail = n <= BUFFER_LENGTH_TX - twind ? n : BUFFER_LENGTH_TX - twind;
-	   memcpy(&tbuf[twind], data, n_tail);
-	   twind = (twind + n) & (BUFFER_LENGTH_TX - 1);
-
-	   if(n != n_tail){
-	     memcpy(tbuf, &(data[n_tail]), n - n_tail);
-	   }
-
-	   flush();
+		 USART2_IT_send((unsigned char *)data,length);
 	 }
 
     unsigned long time(){ return HAL_GetTick(); }

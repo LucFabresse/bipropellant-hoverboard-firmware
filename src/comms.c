@@ -28,7 +28,7 @@ volatile int16_t ch_buf[8];
   volatile SERIAL_USART_BUFFER usart2_it_TXbuffer;
   volatile SERIAL_USART_BUFFER usart2_it_RXbuffer;
 #endif
-#if defined(SERIAL_USART3_IT)
+#if defined(SERIAL_USART3_IT) || defined(ROSSERIAL_DEBUG_UART3)
   volatile SERIAL_USART_BUFFER usart3_it_TXbuffer;
   volatile SERIAL_USART_BUFFER usart3_it_RXbuffer;
 #endif
@@ -106,10 +106,9 @@ void consoleLog(const char *message)
     #if defined DEBUG_SERIAL_SENSOR && defined CONTROL_SENSOR
     USART_sensorSend(1, (unsigned char *)message, strlen(message), 0);
     #else
-      // TODO: Method to select which input is used for Protocol when both are active
-      #if (defined(SERIAL_USART2_IT) || defined(ROSSERIAL_USART2)) && !defined(READ_SENSOR)
+      #if defined(SERIAL_USART2_IT) && !defined(READ_SENSOR)
         USART2_IT_send((unsigned char *)message, strlen(message));
-      #elif defined(SERIAL_USART3_IT) && !defined(READ_SENSOR)
+      #elif (defined(SERIAL_USART3_IT) || defined(ROSSERIAL_DEBUG_UART3)) && !defined(READ_SENSOR)
         USART3_IT_send((unsigned char *)message, strlen(message));
       #elif !defined(READ_SENSOR) && defined(DEBUG_SERIAL_SENSOR)
         HAL_UART_Transmit_DMA(&huart2, (uint8_t *)message, strlen(message));
@@ -134,7 +133,12 @@ int USART2_IT_send(unsigned char *data, int len) {
     }
 
     for (int i = 0; i < len; i++){
-        serial_usart_buffer_push(&usart2_it_TXbuffer, (SERIAL_USART_IT_BUFFERTYPE) data[i]);
+		  //TODO: 
+		  // by default SERIAL_USART_IT_BUFFERTYPE == unsigned short ==> 16bits
+		  // with this cast (SERIAL_USART_IT_BUFFERTYPE) data[i]
+		  // data[i] (unsigned char ==> 8bits) is expanded to 16bits
+		  // so do we loose space by transfering 8 zeroed bits for each byte sent through TX?
+        serial_usart_buffer_push(&usart2_it_TXbuffer, (SERIAL_USART_IT_BUFFERTYPE) data[i]); 
     }
 
     return USART2_IT_starttx();
@@ -152,6 +156,8 @@ void USART2_IT_IRQ(USART_TypeDef *us) {
     if (serial_usart_buffer_count(&usart2_it_TXbuffer) == 0) {
       *CR1 = (*CR1 & ~(USART_CR1_TXEIE | USART_CR1_TCIE));
     } else {
+		 // & 0x1ff  is to only keep 9bits because usart2_it_TXbuffer[i] may be much bigger  
+		 // (unsigned short by default) but USART is limited to 8 or 9bits at most			
       *DR = (serial_usart_buffer_pop(&usart2_it_TXbuffer) & 0x1ff);
     }
   }
@@ -167,7 +173,7 @@ void USART2_IT_IRQ(USART_TypeDef *us) {
 
 #endif
 
-#ifdef SERIAL_USART3_IT
+#if defined(SERIAL_USART3_IT) || defined(ROSSERIAL_DEBUG_UART3)
 
 int USART3_IT_starttx() {
     __HAL_UART_ENABLE_IT(&huart3, UART_IT_TXE);
@@ -201,7 +207,7 @@ void USART3_IT_IRQ(USART_TypeDef *us) {
     if (serial_usart_buffer_count(&usart3_it_TXbuffer) == 0) {
       *CR1 = (*CR1 & ~(USART_CR1_TXEIE | USART_CR1_TCIE));
     } else {
-      *DR = (serial_usart_buffer_pop(&usart3_it_TXbuffer) & 0x1ff);
+      *DR = (serial_usart_buffer_pop(&usart3_it_TXbuffer) & 0x1ff);	
     }
   }
 
