@@ -26,7 +26,7 @@
 #ifdef SOFTWARE_SERIAL
     PROTOCOL_STAT sSoftwareSerial;
 #endif
-#if defined(SERIAL_USART2_IT)
+#if defined(SERIAL_USART2_IT) || defined(ROSSERIAL_USART2)
     PROTOCOL_STAT sUSART2;
 #endif
 #if defined(SERIAL_USART3_IT) && !defined(READ_SENSOR)
@@ -382,12 +382,15 @@ int setup_protocol() {
 
     #endif
 
-    #if defined(SERIAL_USART2_IT)
+
+    #if defined(SERIAL_USART2_IT) || defined(ROSSERIAL_USART2)
       // initialise, even if READ_SENSOR, as we may switch vuia software to use this....
       extern int USART2_IT_send(unsigned char *data, int len);
-
+	
+		#ifndef ROSSERIAL_USART2
       errors += protocol_init(&sUSART2);
-
+		#endif
+		
       sUSART2.send_serial_data=USART2_IT_send;
       sUSART2.send_serial_data_wait=USART2_IT_send;
       sUSART2.timeout1 = 500;
@@ -413,10 +416,6 @@ int setup_protocol() {
 	 #if defined(SERIAL_USART2_IT) && !defined(SERIAL_USART3_IT)
     // initialise ascii protocol functions
     main_ascii_init();
-	 #endif
-	 
-	 #if defined(ROSSERIAL_USART2) 
-	 // TODO
 	 #endif
 
     #ifdef CONTROL_SENSOR

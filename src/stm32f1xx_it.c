@@ -402,7 +402,7 @@ void EXTI15_10_IRQHandler(void)
 /////////////////////////////////////////
 // UART interrupts
 
-#if defined(SERIAL_USART2_IT)
+#if defined(SERIAL_USART2_IT) || defined(ROSSERIAL_USART2)
 void USART2_IT_IRQ(USART_TypeDef *us);
 
 void USART2_IRQHandler(void){

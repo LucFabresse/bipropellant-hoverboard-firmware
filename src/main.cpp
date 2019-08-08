@@ -300,8 +300,13 @@ int main(void) {
   }
   #endif
 
-  #ifdef SERIAL_USART2_IT
+  #if defined(SERIAL_USART2_IT) || defined(ROSSERIAL_USART2)  
   USART2_IT_init();
+  
+  // available from comms.{h,c}
+  // int   USART2_IT_starttx();
+//   int   USART2_IT_send(unsigned char *data, int len);
+//   void  USART2_IT_IRQ(USART_TypeDef *us);
   #endif
   #ifdef SERIAL_USART3_IT
   USART3_IT_init();
@@ -362,8 +367,9 @@ int main(void) {
   // sets up serial ports, and enables protocol on selected ports
   setup_protocol();
 
+  #if defined(INCLUDE_PROTOCOL)||defined(READ_SENSOR)
   int last_control_type = CONTROL_TYPE_NONE;
-
+  #endif
 
   float board_temp_adc_filtered = (float)adc_buffer.temp;
   float board_temp_deg_c;
@@ -445,6 +451,7 @@ int main(void) {
           protocol_tick( &sUSART3 );
         #endif
       #endif
+			 
       timeStats.now_us = HallGetuS();
       timeStats.now_ms = HAL_GetTick();
     }
@@ -726,10 +733,6 @@ int main(void) {
 	  } // needed if !INCLUDE_PROTOCOL && !READ_SENSOR
     #endif // INCLUDE_PROTOCOL)||defined(READ_SENSOR)
 
-      // ####### LOW-PASS FILTER #######
-      steer = steer * (1.0 - FILTER) + cmd1 * FILTER;
-      speed = speed * (1.0 - FILTER) + cmd2 * FILTER;
-
 
       // ####### MIXER #######
     #ifdef INCLUDE_PROTOCOL
@@ -742,6 +745,10 @@ int main(void) {
           pwms[0] = pwms[0] * (1.0 - FILTER) + cmd1 * FILTER;
           pwms[1] = pwms[1] * (1.0 - FILTER) + cmd2 * FILTER;
         } else {
+	        // ####### LOW-PASS FILTER #######
+	        steer = steer * (1.0 - FILTER) + cmd1 * FILTER;
+	        speed = speed * (1.0 - FILTER) + cmd2 * FILTER;
+
           pwms[0] = CLAMP(speed * SPEED_COEFFICIENT -  steer * STEER_COEFFICIENT, -1000, 1000);
           pwms[1] = CLAMP(speed * SPEED_COEFFICIENT +  steer * STEER_COEFFICIENT, -1000, 1000);
         }
@@ -772,7 +779,19 @@ int main(void) {
       pwml = pwms[0];
     }
 
-
+	 
+	#ifdef ROSSERIAL_USART2
+	 	 
+			 // 	    while ( serial_usart_buffer_count(&usart2_it_RXbuffer) > 0 ) {
+			 // protocol_byte( &sUSART2, (unsigned char) serial_usart_buffer_pop(&usart2_it_RXbuffer) );
+			 // 	    }
+	 
+		 unsigned char msg[] = "Hello from Propellant\n\r";
+		 USART2_IT_send((unsigned char*) msg,strlen((const char*) msg));
+		 consoleLog("Cool ça !\n\r");
+	#endif
+	 
+	 
 //    for (int i = 0; i < 2; i++){
 //      lastspeeds[i] = pwms[i];
 //    }

@@ -24,7 +24,7 @@ extern UART_HandleTypeDef huart3;
 volatile uint8_t uart_buf[100];
 volatile int16_t ch_buf[8];
 
-#if defined(SERIAL_USART2_IT)
+#if defined(SERIAL_USART2_IT) || defined(ROSSERIAL_USART2)
   volatile SERIAL_USART_BUFFER usart2_it_TXbuffer;
   volatile SERIAL_USART_BUFFER usart2_it_RXbuffer;
 #endif
@@ -107,7 +107,7 @@ void consoleLog(const char *message)
     USART_sensorSend(1, (unsigned char *)message, strlen(message), 0);
     #else
       // TODO: Method to select which input is used for Protocol when both are active
-      #if defined(SERIAL_USART2_IT) && !defined(READ_SENSOR)
+      #if (defined(SERIAL_USART2_IT) || defined(ROSSERIAL_USART2)) && !defined(READ_SENSOR)
         USART2_IT_send((unsigned char *)message, strlen(message));
       #elif defined(SERIAL_USART3_IT) && !defined(READ_SENSOR)
         USART3_IT_send((unsigned char *)message, strlen(message));
@@ -118,7 +118,7 @@ void consoleLog(const char *message)
 }
 
 
-#ifdef SERIAL_USART2_IT
+#if defined(SERIAL_USART2_IT) || defined(ROSSERIAL_USART2)
 
 int USART2_IT_starttx() {
     __HAL_UART_ENABLE_IT(&huart2, UART_IT_TXE);

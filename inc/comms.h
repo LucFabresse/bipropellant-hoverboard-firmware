@@ -11,7 +11,7 @@ typedef struct tag_serial_usart_buffer {
 
 } SERIAL_USART_BUFFER;
 
-#if defined(SERIAL_USART2_IT)
+#if defined(SERIAL_USART2_IT) || defined(ROSSERIAL_USART2)  
 
     extern volatile SERIAL_USART_BUFFER usart2_it_TXbuffer;
     extern volatile SERIAL_USART_BUFFER usart2_it_RXbuffer;

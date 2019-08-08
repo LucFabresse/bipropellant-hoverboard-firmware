@@ -22,9 +22,13 @@
 //////////////////////////////////////////////////////////
 
 #if (CONTROL_TYPE == CONTROL_ROSSERIAL_USART2)
+	#define ROSSERIAL_USART2			// rosserial on USART2 (battery side)
 	#define USART2_BAUD     115200 	// more?
-	#define SERIAL_USART_IT_BUFFERTYPE unsigned short // TODO: check all SERIAL_USART_IT_BUFFERTYPE
-	#define ROSSERIAL_USART2	// TODO: check all SERIAL_USART2_IT
+	#define SERIAL_USART_IT_BUFFERTYPE unsigned short
+
+	#define DEBUG_SERIAL_USART3		// activate debug on USART3
+	#define DEBUG_BAUD 115200			// strange, it was not defined somewhere...
+	#define DEBUG_SERIAL_ASCII 		// activate ASCII debug (cf. consoleScope())
 #endif
 	
 //////////////////////////////////////////////////////////

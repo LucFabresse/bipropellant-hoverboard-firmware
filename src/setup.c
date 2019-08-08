@@ -66,7 +66,7 @@ volatile ADCBUFFERS adc_buffers = {
 
 // used in main
 int USART2ProtocolEnable = 0;
-#ifdef SERIAL_USART2_IT  
+#if defined(SERIAL_USART2_IT) || defined(ROSSERIAL_USART2)
   static int USART2WordLength = USART2_WORDLENGTH;
 #endif
 
@@ -138,7 +138,7 @@ void UART_Init() {
 }
 #endif
 
-#ifdef SERIAL_USART2_IT
+#if defined(SERIAL_USART2_IT) || defined(ROSSERIAL_USART2)
 void USART2_IT_init(){
     memset((void*)&usart2_it_TXbuffer, 0, sizeof(usart2_it_TXbuffer));
     memset((void*)&usart2_it_RXbuffer, 0, sizeof(usart2_it_RXbuffer));
