@@ -722,7 +722,8 @@ int main(void) {
         // if we sent diagnositc data, it seems to need this.
         sensor_send_lights();
       #endif
-
+	#else
+	  } // needed if !INCLUDE_PROTOCOL && !READ_SENSOR
     #endif // INCLUDE_PROTOCOL)||defined(READ_SENSOR)
 
       // ####### LOW-PASS FILTER #######

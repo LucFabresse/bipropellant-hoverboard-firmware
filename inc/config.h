@@ -11,15 +11,22 @@
 #define SOFTWARE_SERIAL_A2_A3 4
 #define HOVERBOARD_WITH_SOFTWARE_SERIAL_B2_C9_6WORDSENSOR 5
 
-// thoery says this is the only thing you need to change....
+// theory says this is the only thing you need to change....
 // Can also be preset from platformio.ini when using platform.io build environment
 #ifndef CONTROL_TYPE
-  // #define CONTROL_TYPE HOVERBOARD_WITH_SOFTWARE_SERIAL_B2_C9
-  #define USART2_BAUD 115200
-  #define CONTROL_TYPE USART2_CONTROLLED
+  // #define CONTROL_TYPE HOVERBOARD_WITH_SOFTWARE_SERIAL_B2_C9  
+  // #define CONTROL_TYPE USART2_CONTROLLED
+  // #define CONTROL_TYPE USART3_CONTROLLED
+  #define CONTROL_TYPE CONTROL_ROSSERIAL_USART2
 #endif
 //////////////////////////////////////////////////////////
 
+#if (CONTROL_TYPE == CONTROL_ROSSERIAL_USART2)
+	#define USART2_BAUD     115200 	// more?
+	#define SERIAL_USART_IT_BUFFERTYPE unsigned short // TODO: check all SERIAL_USART_IT_BUFFERTYPE
+	#define ROSSERIAL_USART2	// TODO: check all SERIAL_USART2_IT
+#endif
+	
 //////////////////////////////////////////////////////////
 // implementaiton of specific for macro control types
 // provide a short explaination here
@@ -227,7 +234,7 @@
 #endif
 
 #ifndef BAT_LOW_LVL1_ENABLE
-  #define BAT_LOW_LVL1_ENABLE     0         // to beep or not to beep, 1 or 0
+  #define BAT_LOW_LVL1_ENABLE     1         // to beep or not to beep, 1 or 0
 #endif
 #ifndef BAT_LOW_LVL1
   #define BAT_LOW_LVL1            3.6       // gently beeps at this voltage level. [V/cell]
@@ -380,10 +387,10 @@
 #define NO_PROTOCOL 0
 #define INCLUDE_PROTOCOL2 2 // enables processing of input characters through 'machine_protocol.c'
 
-//#define INCLUDE_PROTOCOL NO_PROTOCOL
-#ifndef INCLUDE_PROTOCOL
-  #define INCLUDE_PROTOCOL INCLUDE_PROTOCOL2
-#endif
+// #define INCLUDE_PROTOCOL NO_PROTOCOL
+// #ifndef INCLUDE_PROTOCOL
+//   #define INCLUDE_PROTOCOL INCLUDE_PROTOCOL2
+// #endif
 // Log PWM value in position/speed control mode
 //define LOG_PWM
 
@@ -432,6 +439,20 @@
 #if defined(DEBUG_SERIAL_USART2) && defined(DEBUG_SERIAL_USART3)
   #error DEBUG_SERIAL_USART2 and DEBUG_SERIAL_USART3 not allowed, choose one.
 #endif
+
+#if defined(CONTROL_ROSSERIAL_USART2)
+  #ifdef SENSOR_BOARD_CABLE_LEFT_IN_USE
+    #error CONTROL_ROSSERIAL_USART2 not allowed, cable already in use.
+  #else
+    #define SENSOR_BOARD_CABLE_LEFT_IN_USE
+	 #ifdef CONTROL_METHOD_DEFINED
+		#error CONTROL_ROSSERIAL_USART2 not allowed, another control Method is already defined.
+		#else
+		#define CONTROL_METHOD_DEFINED
+	#endif
+  #endif
+#endif
+
 
 #if defined(DEBUG_SERIAL_USART2)
   #ifdef SENSOR_BOARD_CABLE_LEFT_IN_USE

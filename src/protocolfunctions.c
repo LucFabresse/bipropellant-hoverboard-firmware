@@ -410,10 +410,14 @@ int setup_protocol() {
 
     #endif
 
-
+	 #if defined(SERIAL_USART2_IT) && !defined(SERIAL_USART3_IT)
     // initialise ascii protocol functions
     main_ascii_init();
-
+	 #endif
+	 
+	 #if defined(ROSSERIAL_USART2) 
+	 // TODO
+	 #endif
 
     #ifdef CONTROL_SENSOR
         errors += setParamVariable( 0x01, UI_NONE, &sensor_copy,                  sizeof(sensor_copy), PARAM_R);
