@@ -24,8 +24,12 @@
 #if (CONTROL_TYPE == CONTROL_ROSSERIAL_USART2)
 	#define ROSSERIAL_USART2			// rosserial on USART2 (left or battery side)
 	#define USART2_BAUD     115200 	// more?
-	#define SERIAL_USART_IT_BUFFERTYPE unsigned short	// because sizeof(unsigned short)==16bits > 8 or 9 bits of USART data
-	// #define SERIAL_USART_IT_BUFFERTYPE uint8_t	// if we are sure to stick with 8bits USART only
+	
+	// sizeof(unsigned short)==16bits which is the closest C type to store the 8 or 9 bits of USART data
+	#define SERIAL_USART_IT_BUFFERTYPE unsigned short	
+	// if we are sure to stick with 8bits USART only we could make it smaller
+	// but it will only save very few bytes 1024 (SERIAL_USART_BUFFER_SIZE) * 1 byte (16bits-8bits) (cf. comms.h)
+	// #define SERIAL_USART_IT_BUFFERTYPE uint8_t																	
 	
 	#define ROSSERIAL_DEBUG_UART3		// activate debug on USART3 (right or motherboard side)
 	#define DEBUG_BAUD 115200			// strange, it was not defined somewhere...
