@@ -13,6 +13,11 @@
 #include "rtwtypes.h"
 #include <string.h>
 
+#ifdef ROSSERIAL_USART2
+	extern void resetLeftMotorPWM();
+	extern void resetRightMotorPWM(); 
+#endif
+
 // initial values set to defines.
 // we may allow these to be changed later.
 BLDC_PARAMS BldcControllerParams = {
@@ -238,6 +243,9 @@ void DMA1_Channel1_IRQHandler() {
     //disable PWM when current limit is reached (current chopping)
     if(input_timeout_counter > INPUT_TIMEOUT || enable == 0 || BldcControllerParams.initialized == 0) {
       LEFT_TIM->BDTR &= ~TIM_BDTR_MOE;
+#ifdef ROSSERIAL_USART2
+		resetLeftMotorPWM(); 
+#endif
       //HAL_GPIO_WritePin(LED_PORT, LED_PIN, 1);
     } else {
       LEFT_TIM->BDTR |= TIM_BDTR_MOE;
@@ -311,6 +319,9 @@ void DMA1_Channel1_IRQHandler() {
 #endif
     if(input_timeout_counter > INPUT_TIMEOUT || enable == 0 || BldcControllerParams.initialized == 0) {
       RIGHT_TIM->BDTR &= ~TIM_BDTR_MOE;
+#ifdef ROSSERIAL_USART2
+		resetRightMotorPWM(); 
+#endif
     } else {
       RIGHT_TIM->BDTR |= TIM_BDTR_MOE;
     }

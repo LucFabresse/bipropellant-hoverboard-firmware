@@ -99,6 +99,12 @@ extern int control_type;
 
 extern PROTOCOL_PWM_DATA PWMData;
 
+extern "C" {
+	// called from bldc.c when the heartbeat is triggered
+	void resetLeftMotorPWM() { PWMData.pwm[0]=0; }
+	void resetRightMotorPWM() { PWMData.pwm[1]=0; }
+}
+
 void motorLeftTopicCallback(const std_msgs::Int16& pwmLeft) {
 	control_type = CONTROL_TYPE_PWM;
 	PWMData.pwm[0] = CLAMP(pwmLeft.data, -ROSPWMLIMIT, ROSPWMLIMIT);
