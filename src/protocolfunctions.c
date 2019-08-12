@@ -415,7 +415,8 @@ int setup_protocol() {
 
     #endif
 
-	 #if defined(SERIAL_USART2_IT) && !defined(SERIAL_USART3_IT)
+	 // #if defined(SERIAL_USART2_IT) && !defined(SERIAL_USART3_IT)
+	 #if defined(SERIAL_USART2_IT) || defined(SERIAL_USART3_IT)
     // initialise ascii protocol functions
     main_ascii_init();
 	 #endif

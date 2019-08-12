@@ -31,10 +31,16 @@
 	// but it will only save very few bytes 1024 (SERIAL_USART_BUFFER_SIZE) * 1 byte (16bits-8bits) (cf. comms.h)
 	// #define SERIAL_USART_IT_BUFFERTYPE uint8_t																	
 	
-	#define ROSSERIAL_DEBUG_UART3		// activate debug on USART3 (right or motherboard side)
-	#define DEBUG_BAUD 115200			// strange, it was not defined somewhere...
-	#define DEBUG_SERIAL_ASCII 		// activate ASCII debug (cf. consoleScope())
+	// #define HALL_INTERRUPTS
+		
+	// #define ROSSERIAL_DEBUG_UART3		// activate debug on USART3 (right or motherboard side)
+	// #define DEBUG_BAUD 115200			// strange, it was not defined somewhere...
+	// #define DEBUG_SERIAL_ASCII 		// activate ASCII debug (cf. consoleScope())
+
+	#define SERIAL_USART3_IT
 #endif
+
+
 	
 //////////////////////////////////////////////////////////
 // implementaiton of specific for macro control types
@@ -397,9 +403,9 @@
 #define INCLUDE_PROTOCOL2 2 // enables processing of input characters through 'machine_protocol.c'
 
 // #define INCLUDE_PROTOCOL NO_PROTOCOL
-// #ifndef INCLUDE_PROTOCOL
-//   #define INCLUDE_PROTOCOL INCLUDE_PROTOCOL2
-// #endif
+#ifndef INCLUDE_PROTOCOL
+  #define INCLUDE_PROTOCOL INCLUDE_PROTOCOL2
+#endif
 // Log PWM value in position/speed control mode
 //define LOG_PWM
 

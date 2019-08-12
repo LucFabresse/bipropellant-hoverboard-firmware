@@ -174,8 +174,8 @@ void rosserial_loop() {
 		batteryVoltageMsg.data = electrical_measurements.batteryVoltage;
 		batteryVoltagePublisher.publish(&batteryVoltageMsg);
 		
-		sprintf(debugMsg,"[%u] rosserial heartbeat\n\r",rosserialLoopCount);
-		consoleLog(debugMsg);
+		// sprintf(debugMsg,"[%u] rosserial heartbeat\n\r",rosserialLoopCount);
+		// consoleLog(debugMsg);
 	}
 	
 	// USART2_IT_send((unsigned char*)"USART2_IT_send\n\r",(int)16);
