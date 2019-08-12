@@ -759,6 +759,10 @@ int main(void) {
         }
       }
 
+	#ifdef ROSSERIAL_USART2
+		rosserial_loop();
+	#endif
+
     if(SWITCH_WHEELS) {
       int tmppwm = pwms[1];
       pwms[1] = pwms[0];
@@ -782,12 +786,7 @@ int main(void) {
       pwml = -pwms[0];
     } else {
       pwml = pwms[0];
-    }
-
-	#ifdef ROSSERIAL_USART2
-		rosserial_loop();
-	#endif
-	 
+    } 
 	 
 //    for (int i = 0; i < 2; i++){
 //      lastspeeds[i] = pwms[i];

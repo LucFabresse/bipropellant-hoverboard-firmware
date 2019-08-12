@@ -79,18 +79,30 @@ ros::Publisher batteryVoltagePublisher("battery_voltage", &batteryVoltageMsg);
 // Motors Topics Subscribers
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-// void MotorLeftCb(const std_msgs::Int16& rpm) {
-// 	motor_left_rpm(rpm.data);
-// 	// sprintf(log_msg, "motor left data received %d", rpm.data);
-// 	// nh.loginfo(log_msg);
-// }
-//
-// void MotorRightCb (const std_msgs::Int16& rpm) {
-// 	// nh.loginfo("motor right data received");
-// 	motor_right_rpm(rpm.data);
-// 	// sprintf(log_msg, "motor right data received %d", rpm.data);
-// 	// nh.loginfo(log_msg);
-// }
+// #define LOG_PWM
+
+// #define ROSPWMLIMIT 1000
+#define ROSPWMLIMIT 200
+
+// only for propellent protocols (Machine, ASCII, ...)
+// control_type = CONTROL_TYPE_PWM;		// CONTROL_TYPE_NONE CONTROL_TYPE_PWM CONTROL_TYPE_SPEED CONTROL_TYPE_POSITION CONTROL_TYPE_MAX
+
+extern int pwms[2];	// direct access to motors
+
+void motorLeftTopicCallback(const std_msgs::Int16& pwmLeft) {
+	pwms[0] = CLAMP(pwmLeft.data, -ROSPWMLIMIT, ROSPWMLIMIT);
+	sprintf(debugMsg,"/lmotor received %d -> set %d\n",pwmLeft.data,pwms[0]);
+	nh.loginfo(debugMsg);
+}
+ros::Subscriber<std_msgs::Int16> subMotorLeftTopic("lmotor", &motorLeftTopicCallback);
+
+void motorRightTopicCallback(const std_msgs::Int16& pwmRight) {
+	pwms[1] = CLAMP(pwmRight.data, -ROSPWMLIMIT, ROSPWMLIMIT);
+	sprintf(debugMsg,"/lmotor received %d -> set %d\n",pwmRight.data,pwms[1]);
+	nh.loginfo(debugMsg);
+}
+ros::Subscriber<std_msgs::Int16> subMotorRightTopic("rmotor", &motorRightTopicCallback);
+
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Hall Topic Publishers
@@ -120,12 +132,10 @@ void rosserial_init() {
 	// TODO: replace by const sensor_msgs::BatteryState& 
 	nh.advertise(batteryVoltagePublisher);
 
-	// ros::Subscriber<std_msgs::Int16> subMotorLeftTopic("motor_left_rpm", &MotorLeftCb );
-	// nh.subscribe(subMotorLeftTopic);
-	//
-	// ros::Subscriber<std_msgs::Int16> subMotorRightTopic("motor_right_rpm", &MotorRightCb );
-	// nh.subscribe(subMotorRightTopic);
-	// 
+	// how we control motors
+	nh.subscribe(subMotorLeftTopic);
+	nh.subscribe(subMotorRightTopic);
+
 	// std_msgs::Int32 hallLeftMsg;
 	// ros::Publisher hallLeftPublisher("motor_left_hall", &hallLeftMsg);
 	// nh.advertise(hallLeftPublisher);
