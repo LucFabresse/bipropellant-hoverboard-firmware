@@ -32,7 +32,7 @@ extern "C" {
 long last1Hz_ms = timeStats.now_ms;	// ms
 long last2Hz_ms = timeStats.now_ms;	// ms
 // long last10Hz_ms = timeStats.time_in_ms;	// ms
-// long last100Hz_ms = timeStats.time_in_ms;	// ms
+long last100Hz_ms = timeStats.time_in_ms;	// ms
 // long last200Hz_ms = timeStats.time_in_ms;	// ms
 
 unsigned int rosserialLoopCount = 0;
@@ -127,7 +127,13 @@ ros::Subscriber<std_msgs::Int16> subMotorRightTopic("rmotor", &motorRightTopicCa
 // Hall Topic Publishers
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+extern volatile HALL_DATA_STRUCT HallData[2];
+	
+std_msgs::Int32 motorLeftHallMsg;
+ros::Publisher motorLeftHallPublisher("lwheel", &motorLeftHallMsg);
 
+std_msgs::Int32 motorRightHallMsg;
+ros::Publisher motorRightHallPublisher("rwheel", &motorRightHallMsg);
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // 
@@ -158,21 +164,12 @@ void rosserial_init() {
 	nh.subscribe(subMotorLeftTopic);
 	nh.subscribe(subMotorRightTopic);
 
-	// std_msgs::Int32 hallLeftMsg;
-	// ros::Publisher hallLeftPublisher("motor_left_hall", &hallLeftMsg);
-	// nh.advertise(hallLeftPublisher);
-	//
-	// std_msgs::Int32 hallRightMsg;
-	// ros::Publisher hallRightPublisher("motor_right_hall", &hallRightMsg);
-	// nh.advertise(hallRightPublisher);
-	//
-	// std_msgs::Int32 ticksRightMsg;
-	// ros::Publisher ticksRightPublisher("motor_right_ticks", &ticksRightMsg);
-	// nh.advertise(ticksRightPublisher);
-	//
-	// std_msgs::Int32 ticksLeftMsg;
-	// ros::Publisher ticksLeftPublisher("motor_left_ticks", &ticksLeftMsg);
-	// nh.advertise(ticksLeftPublisher);
+	// hall data
+	nh.advertise(motorLeftHallPublisher);
+	nh.advertise(motorRightHallPublisher);
+
+	sprintf(debugMsg,"sizeof(long)=%d\n",sizeof(long));
+	nh.loginfo(debugMsg);
 	
 	nh.loginfo("[OK] rosserial topics created\n");
 }
@@ -185,19 +182,17 @@ void rosserial_init() {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~	
 
 void rosserial_loop() {
-		
-	// hallLeftMsg.data = motor_left_hall();
-	// hallLeftPublisher.publish(&hallLeftMsg);
-	//
-	// hallRightMsg.data = motor_right_hall();
-	// hallRightPublisher.publish(&hallRightMsg);
-	//
-	// ticksRightMsg.data = motor_right_ticks();
-	// ticksRightPublisher.publish(&ticksRightMsg);
-	//
-	// ticksLeftMsg.data = motor_left_ticks();
-	// ticksLeftPublisher.publish(&ticksLeftMsg);
 	
+	if(timeStats.now_ms - last100Hz_ms > DELAY_MS_100HZ ) {
+		last100Hz_ms = timeStats.now_ms;
+		
+		motorLeftHallMsg.data = HallData[0].HallPosn;
+		motorLeftHallPublisher.publish(&motorLeftHallMsg);
+
+		motorRightHallMsg.data = HallData[1].HallPosn;
+		motorRightHallPublisher.publish(&motorRightHallMsg);
+	}
+			
 	if(timeStats.now_ms - last2Hz_ms > DELAY_MS_2HZ ) {
 		last2Hz_ms = timeStats.now_ms;
 						
