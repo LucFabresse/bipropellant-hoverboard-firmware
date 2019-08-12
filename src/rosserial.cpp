@@ -78,7 +78,7 @@ std_msgs::Float32 batteryVoltageMsg;
 ros::Publisher batteryVoltagePublisher("battery_voltage", &batteryVoltageMsg);
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Motors Topics Subscribers
+// Motors Topics Subscribers PWM
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 extern volatile uint32_t input_timeout_counter; // global variable for input_timeout
@@ -98,11 +98,12 @@ void signalHeartBeat() {
 extern int control_type;
 
 extern PROTOCOL_PWM_DATA PWMData;
+extern PROTOCOL_SPEED_DATA SpeedData;
 
 extern "C" {
 	// called from bldc.c when the heartbeat is triggered
-	void resetLeftMotorPWM() { PWMData.pwm[0]=0; }
-	void resetRightMotorPWM() { PWMData.pwm[1]=0; }
+	void resetLeftMotorPWM() { PWMData.pwm[0]=0; SpeedData.wanted_speed_mm_per_sec[0] = 0; }
+	void resetRightMotorPWM() { PWMData.pwm[1]=0; SpeedData.wanted_speed_mm_per_sec[1] = 0; }
 }
 
 void motorLeftTopicCallback(const std_msgs::Int16& pwmLeft) {
@@ -122,6 +123,27 @@ void motorRightTopicCallback(const std_msgs::Int16& pwmRight) {
 	// nh.loginfo(debugMsg);
 }
 ros::Subscriber<std_msgs::Int16> subMotorRightTopic("rmotor", &motorRightTopicCallback);
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Motors Topics Subscribers Meter/s
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#define ROSSPEEDLIMIT 500		// 0.5m/s
+
+
+void motorLeftSpeedTopicCallback(const std_msgs::UInt16& speedLeft) {
+	control_type = CONTROL_TYPE_SPEED;
+	SpeedData.wanted_speed_mm_per_sec[0] = CLAMP(speedLeft.data, -ROSSPEEDLIMIT, ROSSPEEDLIMIT);
+	signalHeartBeat();
+}
+ros::Subscriber<std_msgs::UInt16> subMotorLeftSpeedTopic("lmotor_ms", &motorLeftSpeedTopicCallback);
+
+void motorRightSpeedTopicCallback(const std_msgs::UInt16& speedRight) {
+	control_type = CONTROL_TYPE_SPEED;
+	SpeedData.wanted_speed_mm_per_sec[1] = CLAMP(speedRight.data, -ROSSPEEDLIMIT, ROSSPEEDLIMIT);
+	signalHeartBeat();
+}
+ros::Subscriber<std_msgs::UInt16> subMotorRightSpeedTopic("rmotor_ms", &motorRightSpeedTopicCallback);
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Hall Topic Publishers
@@ -149,7 +171,9 @@ void rosserial_init() {
 	
 	// init motors variables
 	PWMData.pwm[0] = 0;
-   PWMData.pwm[1] = 0;
+   PWMData.pwm[1] = 0;	
+	SpeedData.wanted_speed_mm_per_sec[0] = 0;
+	SpeedData.wanted_speed_mm_per_sec[1] = 0;
 	
 	nh.loginfo("[STARTING] rosserial topics creation\n");
 	
@@ -162,8 +186,10 @@ void rosserial_init() {
 
 	// how we control motors
 	nh.subscribe(subMotorLeftTopic);
+	nh.subscribe(subMotorLeftSpeedTopic);
 	nh.subscribe(subMotorRightTopic);
-
+	nh.subscribe(subMotorRightSpeedTopic);
+	
 	// hall data
 	nh.advertise(motorLeftHallPublisher);
 	nh.advertise(motorRightHallPublisher);
