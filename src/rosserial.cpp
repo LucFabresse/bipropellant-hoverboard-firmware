@@ -23,11 +23,13 @@ extern "C" {
 // rosserial globals
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~	
 
+#define DELAY_MS_1HZ 1000 // ms
 #define DELAY_MS_2HZ 500 // ms => 0.5s => 2Hz
 #define DELAY_MS_10HZ 100 // ms
 #define DELAY_MS_100HZ 10 // ms 
 #define DELAY_MS_200HZ 5 // ms
 
+long last1Hz_ms = timeStats.now_ms;	// ms
 long last2Hz_ms = timeStats.now_ms;	// ms
 // long last10Hz_ms = timeStats.time_in_ms;	// ms
 // long last100Hz_ms = timeStats.time_in_ms;	// ms
@@ -79,6 +81,13 @@ ros::Publisher batteryVoltagePublisher("battery_voltage", &batteryVoltageMsg);
 // Motors Topics Subscribers
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+extern volatile uint32_t input_timeout_counter; // global variable for input_timeout
+
+// if not called regularly, motors stop
+void signalHeartBeat() {
+	input_timeout_counter = 0;
+}
+
 // #define LOG_PWM
 
 // #define ROSPWMLIMIT 1000
@@ -86,23 +95,27 @@ ros::Publisher batteryVoltagePublisher("battery_voltage", &batteryVoltageMsg);
 
 // only for propellent protocols (Machine, ASCII, ...)
 // control_type = CONTROL_TYPE_PWM;		// CONTROL_TYPE_NONE CONTROL_TYPE_PWM CONTROL_TYPE_SPEED CONTROL_TYPE_POSITION CONTROL_TYPE_MAX
+extern int control_type;
 
-extern int pwms[2];	// direct access to motors
+extern PROTOCOL_PWM_DATA PWMData;
 
 void motorLeftTopicCallback(const std_msgs::Int16& pwmLeft) {
-	pwms[0] = CLAMP(pwmLeft.data, -ROSPWMLIMIT, ROSPWMLIMIT);
-	sprintf(debugMsg,"/lmotor received %d -> set %d\n",pwmLeft.data,pwms[0]);
-	nh.loginfo(debugMsg);
+	control_type = CONTROL_TYPE_PWM;
+	PWMData.pwm[0] = CLAMP(pwmLeft.data, -ROSPWMLIMIT, ROSPWMLIMIT);
+	signalHeartBeat();
+	// sprintf(debugMsg,"/lmotor received %d -> set %d\n",pwmLeft.data,PWMData.pwm[0]);
+	// nh.loginfo(debugMsg);
 }
 ros::Subscriber<std_msgs::Int16> subMotorLeftTopic("lmotor", &motorLeftTopicCallback);
 
 void motorRightTopicCallback(const std_msgs::Int16& pwmRight) {
-	pwms[1] = CLAMP(pwmRight.data, -ROSPWMLIMIT, ROSPWMLIMIT);
-	sprintf(debugMsg,"/lmotor received %d -> set %d\n",pwmRight.data,pwms[1]);
-	nh.loginfo(debugMsg);
+	control_type = CONTROL_TYPE_PWM;
+	PWMData.pwm[1] = CLAMP(pwmRight.data, -ROSPWMLIMIT, ROSPWMLIMIT);
+	signalHeartBeat();
+	// sprintf(debugMsg,"/rmotor received %d -> set %d\n",pwmRight.data,PWMData.pwm[1]);
+	// nh.loginfo(debugMsg);
 }
 ros::Subscriber<std_msgs::Int16> subMotorRightTopic("rmotor", &motorRightTopicCallback);
-
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Hall Topic Publishers
@@ -118,12 +131,15 @@ ros::Subscriber<std_msgs::Int16> subMotorRightTopic("rmotor", &motorRightTopicCa
 
 void rosserial_init() {
 	nh.initNode();
-
-	nh.loginfo("[STARTING] rosserial topics creation\n");
-	consoleLog("[STARTING] rosserial topics creation\n\r");	
 	
-	// str_msg.data = "Hello from Hoverboard\n\r";
-	// nh.advertise(chatterPublisher);
+	// init HeartBeat
+   input_timeout_counter = 0;
+	
+	// init motors variables
+	PWMData.pwm[0] = 0;
+   PWMData.pwm[1] = 0;
+	
+	nh.loginfo("[STARTING] rosserial topics creation\n");
 	
 	// subscribe /buzzer
 	nh.subscribe(subBuzzerTopic);
@@ -152,8 +168,7 @@ void rosserial_init() {
 	// ros::Publisher ticksLeftPublisher("motor_left_ticks", &ticksLeftMsg);
 	// nh.advertise(ticksLeftPublisher);
 	
-	nh.loginfo("[OK] rosserial topics created\n");		
-	consoleLog("[OK] rosserial topics created\n\r");	
+	nh.loginfo("[OK] rosserial topics created\n");
 }
 
 
@@ -177,17 +192,15 @@ void rosserial_loop() {
 	// ticksLeftMsg.data = motor_left_ticks();
 	// ticksLeftPublisher.publish(&ticksLeftMsg);
 	
-	// consoleLog("looping\r\n");
-	
 	if(timeStats.now_ms - last2Hz_ms > DELAY_MS_2HZ ) {
 		last2Hz_ms = timeStats.now_ms;
+						
 		batteryVoltageMsg.data = electrical_measurements.batteryVoltage;
 		batteryVoltagePublisher.publish(&batteryVoltageMsg);
-		
-		// sprintf(debugMsg,"[%u] rosserial heartbeat\n\r",rosserialLoopCount);
-		// consoleLog(debugMsg);
 	}
 	
+	// How to send things on USARTs
+	// consoleLog(debugMsg);
 	// USART2_IT_send((unsigned char*)"USART2_IT_send\n\r",(int)16);
 	// USART3_IT_send((unsigned char*)"USART3_IT_send\n\r",(int)16);
 	
