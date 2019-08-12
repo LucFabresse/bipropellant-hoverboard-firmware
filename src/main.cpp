@@ -332,13 +332,13 @@ int main(void) {
   }
   electrical_measurements.dcCurLim = MIN(DC_CUR_LIMIT*100, FlashContent.MaxCurrLim);
 
-
-
+#ifdef STARTUP_BEEP
   for (int i = 8; i >= 0; i--) {
     buzzerFreq = i;
     HAL_Delay(100);
   }
   buzzerFreq = 0;
+#endif
 
   HAL_GPIO_WritePin(LED_PORT, LED_PIN, GPIO_PIN_SET);
 

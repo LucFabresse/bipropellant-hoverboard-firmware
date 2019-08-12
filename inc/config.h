@@ -22,9 +22,11 @@
 //////////////////////////////////////////////////////////
 
 #if (CONTROL_TYPE == CONTROL_ROSSERIAL_USART2)
+	#define STARTUP_BEEP_OFF
+	
+	// rosserial on USART2
 	#define ROSSERIAL_USART2			// rosserial on USART2 (left or battery side)
 	#define USART2_BAUD     115200 	// more?
-	
 	// sizeof(unsigned short)==16bits which is the closest C type to store the 8 or 9 bits of USART data
 	#define SERIAL_USART_IT_BUFFERTYPE unsigned short	
 	// if we are sure to stick with 8bits USART only we could make it smaller
@@ -32,12 +34,15 @@
 	// #define SERIAL_USART_IT_BUFFERTYPE uint8_t																	
 	
 	// #define HALL_INTERRUPTS
-		
+	
+	// USART3 ON with bipropellant protocol
+	#define SERIAL_USART3_IT
+	
+	// USART3 ON with free consoleLog
+	// #define INCLUDE_PROTOCOL NO_PROTOCOL	// useless?
 	// #define ROSSERIAL_DEBUG_UART3		// activate debug on USART3 (right or motherboard side)
 	// #define DEBUG_BAUD 115200			// strange, it was not defined somewhere...
 	// #define DEBUG_SERIAL_ASCII 		// activate ASCII debug (cf. consoleScope())
-
-	#define SERIAL_USART3_IT
 #endif
 
 
@@ -143,6 +148,10 @@
   #define FLASH_STORAGE 1
 #endif
 
+#if !defined(STARTUP_BEEP) && !defined(STARTUP_BEEP_OFF)
+  #define STARTUP_BEEP
+#endif
+	
 // ############################### ENABLE INTERRUPT READING OF HALL SENSORS FOR POSITION ###############################
 #ifndef HALL_INTERRUPTS
   #define HALL_INTERRUPTS 1
