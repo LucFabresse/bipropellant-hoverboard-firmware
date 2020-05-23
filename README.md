@@ -1,3 +1,13 @@
+# ROSserial + Bipropellant
+
+```shell
+git clone xxx
+git checkout rosserial
+git submodule update --init --recursive
+make
+```
+
+
 ![Bipropellant](.github/logo.png)
 
 bipropellant[ bahy-pruh-pel-uh nt ] - Most liquid-propellant rockets use bipropellant systems — i.e., those in which an oxidizer and a fuel are tanked separately and mixed in the combustion chamber.
