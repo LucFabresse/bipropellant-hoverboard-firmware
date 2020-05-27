@@ -785,7 +785,7 @@ int main(void) {
 
     // if we plug in the charger, keep us alive
     // also if we have deliberately turned off poweroff over serial
-    if (electrical_measurements.charging || disablepoweroff){
+    if (electrical_measurements.charging || disablepoweroff || CONTROL_TYPE == USART3_CONTROLLED){
       inactivity_timeout_counter = 0;
     }
 
