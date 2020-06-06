@@ -122,10 +122,12 @@ void poweroff() {
     if (ABS(speed) < 20) {
         buzzerPattern = 0;
         enable = 0;
+        #if !defined(BUZZER_OFF)
         for (int i = 0; i < 8; i++) {
             buzzerFreq = i;
             HAL_Delay(100);
         }
+        #endif
         HAL_GPIO_WritePin(OFF_PORT, OFF_PIN, 0);
 
         // if we are powered from sTLink, this bit allows the system to be started again with the button.
@@ -311,13 +313,13 @@ int main(void) {
   }
   electrical_measurements.dcCurLim = MIN(DC_CUR_LIMIT*100, FlashContent.MaxCurrLim);
 
-
-
+  #if !defined(BUZZER_OFF)
   for (int i = 8; i >= 0; i--) {
     buzzerFreq = i;
     HAL_Delay(100);
   }
   buzzerFreq = 0;
+  #endif
 
   HAL_GPIO_WritePin(LED_PORT, LED_PIN, 1);
 

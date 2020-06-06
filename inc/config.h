@@ -140,6 +140,7 @@
 //////////////////////////////////////////////////////////
 // Default Values
 
+#define BUZZER_OFF  // avoids BUZZER at startup and shutdown
 
 // ############################### ENABLE FLASH STORAGE MECHANISM ###############################
 // this includes flasharea.c and flashaccess.c
