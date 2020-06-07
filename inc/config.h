@@ -133,7 +133,7 @@
   #define INCLUDE_PROTOCOL INCLUDE_PROTOCOL2
   #define SERIAL_USART3_IT
   #define PASE_ADV_ENA 0
-  #define SERIAL_USART2_IT  // enable consoleLog on USART2
+  // #define SERIAL_USART2_IT  // enable consoleLog on USART2 (left/long cable)
 #endif
 
 
